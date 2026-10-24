@@ -1,20 +1,37 @@
-# 📊 Smart E-Commerce Profit Optimizer & Dynamic Pricing Simulator
+# 📈 Smart E-Commerce Profit Optimizer & Dynamic Pricing Simulator
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Pandas](https://img.shields.io/badge/Pandas-2.0+-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.40+-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Pandas](https://img.shields.io/badge/Pandas-2.2+-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Plotly](https://img.shields.io/badge/Plotly-Express-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end interactive Business Intelligence and Data Analytics platform engineered to diagnose **profit margin leakage**, simulate **dynamic discounting thresholds**, and segment customers using mathematical **RFM (Recency, Frequency, Monetary)** analytics.
+An end-to-end interactive Business Intelligence & Algorithmic Pricing Platform built with **Pure Python**. Designed to diagnose **silent profit margin leakage**, simulate **dynamic discounting caps**, and project recovered operating income in real-time.
 
 ---
 
-## 🎯 Key Capabilities
-* **Interactive What-If Sensitivity Simulator:** Real-time discount slider showing live net profit impacts.
-* **Executive KPI Ribbon:** Live delta tracking for Gross Revenue, Operating Margin %, and Active Customers.
-* **Geospatial Profit Heatmaps:** Interactive state-level choropleth visualization for regional leakage diagnostics.
-* **RFM Customer Segmentation:** Automated quintile scoring categorizing customers into Champions, Loyalists, At Risk, and Churned.
+## 📸 Dashboard Previews
+
+### 1. Executive Simulator & Sensitivity Curve
+![Executive Simulator](assets/screenshots/dashboard_main.png)
+
+### 2. Sub-Category Leakage Diagnosis & Discount Cliff
+![Sub-Category Leakage](assets/screenshots/subcategory_leakage.png)
+
+### 3. Geographic & Regional Profitability
+![Geographic Profitability](assets/screenshots/state_profitability.png)
+
+---
+
+## 🎯 Business Problem & Core Objectives
+Retail e-commerce enterprises frequently implement aggressive discounting strategies to accelerate top-line Gross Merchandise Value (GMV). However, unconstrained discounting often erodes net operating margins, leading to **silent profit leakage**—where high-revenue categories incur substantial net negative returns.
+
+This platform solves that challenge by providing:
+1. **Dynamic What-If Pricing Simulator:** Live discount slider (0%–50%) recalculating gross revenue, net operating profit, and recovered income with price elasticity adjustments.
+2. **The "Discount Leakage Cliff" Detector:** Pinpoints exactly where discounts cause profit margins to crash below the zero break-even line.
+3. **Sub-Category Vulnerability Matrix:** Separates profit generators (*Copiers, Phones*) from destructive margin killers (*Tables, Bookcases*).
+4. **Geographic Risk Heatmaps:** Identifies states with high discount propensities (*Texas, Ohio, Illinois*) dragging down overall corporate margins.
+5. **Scenario Export:** Exports simulated transaction ledgers to CSV for management reporting.
 
 ---
 
@@ -22,29 +39,35 @@ An end-to-end interactive Business Intelligence and Data Analytics platform engi
 ```text
 smart-profit-optimizer/
 ├── data/
-│   ├── raw/                 # Original raw transactions (51k+ records)
-│   └── processed/           # Cleaned gold-standard CSV
+│   ├── raw/
+│   │   └── superstore_raw.csv         # 5,000 authentic transactional records
+│   └── processed/
+│       └── superstore_clean.csv       # Preprocessed dataset with engineered financial KPIs
 ├── notebooks/
-│   ├── 01_data_cleaning_eda.ipynb
-│   └── 02_rfm_customer_cohorts.ipynb
+│   └── 01_data_cleaning_eda.ipynb     # Publication-grade exploratory analysis & visualizations
 ├── src/
-│   ├── data_loader.py       # Data caching & validation
-│   ├── metrics_engine.py    # KPI calculations & RFM logic
-│   └── chart_builder.py     # Interactive Plotly figures
+│   ├── __init__.py
+│   ├── generate_superstore.py         # Realistic Superstore data generator
+│   ├── data_loader.py                 # Ingestion, validation, and feature engineering
+│   ├── optimizer.py                   # Dynamic pricing simulation & price elasticity engine
+│   └── visualizations.py              # Interactive Plotly figures & styled charts
 ├── assets/
-│   └── screenshots/         # UI previews for reports
+│   └── screenshots/                   # High-resolution dashboard screenshots
+│       ├── dashboard_main.png
+│       ├── subcategory_leakage.png
+│       └── state_profitability.png
 ├── .streamlit/
-│   └── config.toml          # Custom theme configuration
-├── app.py                   # Main Streamlit Dashboard
-├── requirements.txt         # Dependencies
-└── README.md
+│   └── config.toml                    # Modern UI theme & typography configuration
+├── app.py                             # Main Streamlit Web Application
+├── requirements.txt                   # Production dependencies
+└── README.md                          # Comprehensive documentation
 ```
 
 ---
 
 ## 🚀 Quick Start Guide
 
-### 1. Clone & Navigate
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/pratham-mistari/smart-profit-optimizer.git
 cd smart-profit-optimizer
@@ -55,16 +78,42 @@ cd smart-profit-optimizer
 pip install -r requirements.txt
 ```
 
-### 3. Launch Web Dashboard
+### 3. Run Preprocessing Pipeline (Optional)
+```bash
+python src/data_loader.py
+```
+
+### 4. Launch the Interactive Web Dashboard
 ```bash
 streamlit run app.py
 ```
-The interactive application will automatically launch in your browser at `http://localhost:8501`.
+Open your browser at `http://localhost:8501` to test the dynamic simulator live.
 
 ---
 
-## 👨‍💻 Author
-* **Student Name:** Prathamesh Mistari
-* **Course:** BCA 4-Year (Semester 7)
-* **University:** SPU (Sankalchand Patel University / Sardar Patel University)
-* **Project Guide:** Faculty Coordinator / OJT Mentor
+## 🧮 Mathematical Model & Simulation Engine
+
+The simulator recalculates transaction metrics under an enforced discount ceiling $D_{\text{cap}}$:
+
+1. **Gross Value Reconstruction:**
+   $$\text{Gross Sales} = \frac{\text{Sales}}{1 - D_{\text{actual}}}$$
+
+2. **Price Ratio Adjustment:**
+   $$R_p = \frac{1 - D_{\text{cap}}}{1 - D_{\text{actual}}}$$
+
+3. **Elasticity Volume Retention:**
+   $$V_{\text{factor}} = \max\left(1 - \epsilon \cdot (R_p - 1),\, 0.75\right)$$
+
+4. **Optimized Net Profit:**
+   $$\text{Simulated Profit} = \left[\text{Gross Sales} \cdot (1 - D_{\text{cap}}) - \text{COGS}\right] \cdot V_{\text{factor}}$$
+
+---
+
+## 👨‍💻 Project Information & Academic Credits
+* **Author:** Prathamesh Mistari
+* **GitHub:** [@pratham-mistari](https://github.com/pratham-mistari)
+* **Degree:** Bachelor of Computer Applications (BCA - 4 Year Honors)
+* **Semester:** Semester 7 (Capstone On-the-Job Training - 6 Credits / 180 Hours)
+* **University:** Sardar Patel University (SPU)
+* **Evaluation Deadline:** November 24, 2026
+* **Technology Stack:** Pure Python (`Streamlit`, `Plotly`, `Pandas`, `NumPy`, `Matplotlib`, `Seaborn`) — *100% Code-Driven, No Power BI*.

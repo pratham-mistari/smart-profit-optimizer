@@ -1,0 +1,223 @@
+"""
+Script to generate standard Jupyter Notebook for Data Cleaning & EDA
+"""
+
+import json
+
+notebook = {
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# 📊 Smart E-Commerce Profit Optimizer: Exploratory Data Analysis & Preprocessing\n",
+                "**Author:** Prathamesh Mistari  \n",
+                "**Degree / Specialization:** BCA (4-Year Hons / Sem 7) | SPU Guidelines  \n",
+                "**Repository:** [pratham-mistari/smart-profit-optimizer](https://github.com/pratham-mistari/smart-profit-optimizer)\n",
+                "\n",
+                "---\n",
+                "### 🎯 Business Objective\n",
+                "Retail e-commerce enterprises frequently implement aggressive discounting strategies to accelerate top-line Gross Merchandise Value (GMV). However, unconstrained discounting often erodes net operating margins, leading to **silent profit leakage**—where high-revenue categories incur substantial net negative returns.\n",
+                "\n",
+                "This notebook conducts end-to-end data auditing, missing value imputation, outlier diagnosis, and exploratory margin analysis to identify key leakage drivers."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# 1. Environment Setup & Library Ingestion\n",
+                "import os\n",
+                "import pandas as pd\n",
+                "import numpy as np\n",
+                "import matplotlib.pyplot as plt\n",
+                "import seaborn as sns\n",
+                "\n",
+                "# Aesthetic plot styling\n",
+                "plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')\n",
+                "plt.rcParams['figure.figsize'] = (10, 5)\n",
+                "plt.rcParams['font.sans-serif'] = 'Segoe UI'\n",
+                "print('Libraries successfully imported!')"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 2. Ingestion of Raw Transactional Data"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "raw_path = os.path.join('..', 'data', 'raw', 'superstore_raw.csv')\n",
+                "df = pd.read_csv(raw_path)\n",
+                "print(f'Raw Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns')\n",
+                "df.head()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 3. Data Integrity & Missing Value Profiling"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "print('--- Dataset Info ---')\n",
+                "df.info()\n",
+                "\n",
+                "print('\\n--- Missing Value Count per Column ---')\n",
+                "missing_summary = df.isnull().sum()\n",
+                "print(missing_summary[missing_summary > 0] if missing_summary.sum() > 0 else 'Zero missing values detected. High dataset completeness.')"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 4. Feature Engineering: Financial Margins & Flags"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Date conversions\n",
+                "df['Order Date'] = pd.to_datetime(df['Order Date'])\n",
+                "df['Ship Date'] = pd.to_datetime(df['Ship Date'])\n",
+                "df['Fulfillment_Days'] = (df['Ship Date'] - df['Order Date']).dt.days\n",
+                "\n",
+                "# Profit Margin % and Loss Identification\n",
+                "df['Profit_Margin_%'] = np.where(df['Sales'] > 0, (df['Profit'] / df['Sales']) * 100, 0).round(2)\n",
+                "df['Is_Loss_Making'] = df['Profit'] < 0\n",
+                "df['COGS'] = df['Sales'] - df['Profit']\n",
+                "\n",
+                "# Categorize discount tiers\n",
+                "bins = [-0.01, 0.0, 0.10, 0.20, 0.40, 1.0]\n",
+                "labels = ['0% None', '1%-10% Low', '11%-20% Moderate', '21%-40% High', '>40% Extreme']\n",
+                "df['Discount_Tier'] = pd.cut(df['Discount'], bins=bins, labels=labels)\n",
+                "\n",
+                "print('Feature engineering complete. Sample computed rows:')\n",
+                "df[['Order ID', 'Sales', 'Discount', 'Profit', 'Profit_Margin_%', 'Is_Loss_Making', 'Discount_Tier']].head()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 5. Exploratory Data Analysis (EDA)\n",
+                "### 5.1 The Discount Leakage Cliff"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "fig, ax = plt.subplots(figsize=(10, 5))\n",
+                "sns.scatterplot(\n",
+                "    data=df.sample(min(1000, len(df)), random_state=42),\n",
+                "    x='Discount',\n",
+                "    y='Profit_Margin_%',\n",
+                "    hue='Category',\n",
+                "    alpha=0.7,\n",
+                "    palette='tab10',\n",
+                "    ax=ax\n",
+                ")\n",
+                "ax.axhline(0, color='red', linestyle='--', linewidth=1.5, label='Break-Even (0% Margin)')\n",
+                "ax.set_title('Discount vs. Profit Margin %: Diagnosing Margin Erosion', fontsize=14, fontweight='bold')\n",
+                "ax.set_xlabel('Discount Rate Applied')\n",
+                "ax.set_ylabel('Profit Margin (%)')\n",
+                "ax.legend()\n",
+                "plt.tight_layout()\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 5.2 Category & Sub-Category Profitability Breakdown"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "subcat_summary = df.groupby(['Category', 'Sub-Category']).agg(\n",
+                "    Total_Sales=('Sales', 'sum'),\n",
+                "    Total_Profit=('Profit', 'sum'),\n",
+                "    Avg_Discount=('Discount', 'mean'),\n",
+                "    Loss_Order_Count=('Is_Loss_Making', 'sum')\n",
+                ").reset_index()\n",
+                "\n",
+                "subcat_summary['Margin_%'] = (subcat_summary['Total_Profit'] / subcat_summary['Total_Sales'] * 100).round(1)\n",
+                "subcat_summary = subcat_summary.sort_values(by='Total_Profit', ascending=False)\n",
+                "\n",
+                "fig, ax = plt.subplots(figsize=(11, 6))\n",
+                "colors = ['#10B981' if p > 0 else '#EF4444' for p in subcat_summary['Total_Profit']]\n",
+                "sns.barplot(\n",
+                "    data=subcat_summary,\n",
+                "    x='Total_Profit',\n",
+                "    y='Sub-Category',\n",
+                "    palette=colors,\n",
+                "    ax=ax\n",
+                ")\n",
+                "ax.set_title('Cumulative Operating Profit by Sub-Category (Green=Profit, Red=Net Loss)', fontsize=14, fontweight='bold')\n",
+                "ax.set_xlabel('Cumulative Operating Profit ($)')\n",
+                "ax.set_ylabel('Sub-Category')\n",
+                "plt.tight_layout()\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 6. Export Cleaned Dataset for Streamlit Dashboard"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "clean_path = os.path.join('..', 'data', 'processed', 'superstore_clean.csv')\n",
+                "os.makedirs(os.path.dirname(clean_path), exist_ok=True)\n",
+                "df.to_csv(clean_path, index=False)\n",
+                "print(f'✅ Successfully exported cleaned dataset to {clean_path}')\n",
+                "print(f'Final Clean Dataset: {df.shape[0]} rows, {df.shape[1]} columns ready for Streamlit engine.')"
+            ]
+        }
+    ],
+    "metadata": {
+        "language_info": {
+            "name": "python",
+            "version": "3.11.9"
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 2
+}
+
+with open("notebooks/01_data_cleaning_eda.ipynb", "w", encoding="utf-8") as f:
+    json.dump(notebook, f, indent=2)
+
+print("Created notebooks/01_data_cleaning_eda.ipynb successfully.")
