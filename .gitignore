@@ -17,3 +17,6 @@ Thumbs.db
 
 # Streamlit local state
 .streamlit/secrets.toml
+
+# IDE settings
+.idea/
