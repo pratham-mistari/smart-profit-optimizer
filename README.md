@@ -27,6 +27,7 @@ smart-profit-optimizer/
 │   │   └── indian_ecommerce_100k.csv         # Raw 100,000 real-world Indian orders (₹61.96 Cr GMV)
 │   └── processed/
 │       └── indian_ecommerce_processed.csv    # Enriched production dataset (24.17 MB, 23 features)
+├── app.py                                    # Interactive Streamlit Web Application (KPIs, Sliders, Plotly tabs)
 ├── analysis.ipynb                            # Complete 11-step Jupyter Notebook written in PyCharm
 ├── .gitignore                                # Hygiene filter (excluding .venv, .idea, cache)
 ├── requirements.txt                          # Python dependencies
@@ -75,6 +76,12 @@ pip install -r requirements.txt
 
 ### 3. Open in PyCharm / Jupyter Notebook
 Launch `analysis.ipynb` and execute the 11 modular cells to reproduce all exploratory charts, RFM segmentations, seller audits, and the profit simulator.
+
+### 4. Launch the Interactive Streamlit Web Dashboard
+```bash
+streamlit run app.py
+```
+Open `http://localhost:8501` in your browser to interact with the real-time simulation sliders, filter metrics, and download strategy scenario reports.
 
 ---
 
