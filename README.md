@@ -1,12 +1,12 @@
 # 🇮🇳 BharatCart: Indian E-Commerce Profit Optimizer & Operations Intelligence
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)](https://jupyter.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App_Live-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Plotly](https://img.shields.io/badge/Plotly-Interactive_Charts-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/)
 [![Pandas](https://img.shields.io/badge/Pandas-2.2+-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Seaborn](https://img.shields.io/badge/Seaborn-Data_Viz-4C72B0)](https://seaborn.pydata.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An enterprise-grade Data Analytics & Operations Intelligence project investigating **margin leakage, Cash on Delivery (COD) Return to Origin (RTO) risks, courier delivery SLAs, seller dispatch bottlenecks, and multi-lever profit optimization** across **100,000+ Indian e-commerce orders** worth **₹61.96 Crores GMV** (modeled after Flipkart, Meesho, and Amazon India).
+An enterprise-grade Data Analytics & Operations Intelligence web platform investigating **margin leakage, Cash on Delivery (COD) Return to Origin (RTO) risks, courier delivery SLAs, seller dispatch bottlenecks, and real-time multi-lever profit optimization** across **100,000+ Indian e-commerce orders** worth **₹61.96 Crores GMV** (modeled after Flipkart, Meesho, and Amazon India).
 
 ---
 
@@ -27,12 +27,32 @@ smart-profit-optimizer/
 │   │   └── indian_ecommerce_100k.csv         # Raw 100,000 real-world Indian orders (₹61.96 Cr GMV)
 │   └── processed/
 │       └── indian_ecommerce_processed.csv    # Enriched production dataset (24.17 MB, 23 features)
-├── app.py                                    # Interactive Streamlit Web Application (KPIs, Sliders, Plotly tabs)
+├── .streamlit/
+│   └── config.toml                           # Streamlit server & theme styling configuration
+├── app.py                                    # Full Production Streamlit Web Dashboard (250+ LOC)
 ├── analysis.ipynb                            # Complete 11-step Jupyter Notebook written in PyCharm
 ├── .gitignore                                # Hygiene filter (excluding .venv, .idea, cache)
-├── requirements.txt                          # Python dependencies
+├── requirements.txt                          # Python dependencies (Streamlit, Plotly, Pandas, etc.)
 └── README.md                                 # Technical project documentation
 ```
+
+---
+
+## 🖥️ Interactive Web Dashboard Features (`app.py`)
+1. **High-Speed Architecture:** Streamlit cache (`@st.cache_data`) for instantaneous loading of 100,000 transactions (24.17 MB).
+2. **Dynamic Sidebar Filters:** Multi-dimensional slicing across Indian States / Regions, Product Categories, and Payment Channels.
+3. **Executive KPI Cards Deck:** Live display of GMV (₹61.96 Cr), Total Orders (100,000), Net Profit (₹11.85 Cr), Net Margin (19.12%), and COD RTO Rate with bright RED High-Risk alert pill.
+4. **Live Multi-Lever Profit Simulator (Flagship Feature):** 
+   * **Lever 1 Slider:** COD OTP & Prepayment Discount Adoption Rate (0% - 80%).
+   * **Lever 2 Slider:** Free Delivery Threshold Cutoff (₹499 - ₹999).
+   * **Lever 3 Slider:** Chronic Late Seller Fulfillment SLA Penalty (₹0 - ₹150).
+   * *Real-Time Dynamic Recalculation* of EBITDA recovery (+₹34.62 Lakhs / +2.92%) and optimized net profit (₹12.19 Cr).
+5. **Interactive Diagnostic Tabs (Plotly):**
+   * **💳 Payment Risk & COD Trap:** Horizontal failure rate bar chart + Volume share donut chart.
+   * **🏷️ Category Margin Matrix:** Scatter/Bubble chart of Net Margin % vs RTO Rate with red 15% threshold line.
+   * **🗺️ Regional Logistics Hubs:** Top revenue states horizontal bar chart (Maharashtra ₹13.54 Cr, Gujarat ₹12.18 Cr).
+   * **🚚 Courier SLA & Review Cliff:** Partner delay rates and the delivery latency review collapse curve.
+6. **Executive Scenario Export:** One-click CSV download button (`BharatCart_Profit_Optimization_Scenario.csv`) for management review.
 
 ---
 
@@ -50,7 +70,7 @@ smart-profit-optimizer/
 
 ---
 
-## 🚀 Multi-Lever Profit Optimization Simulator (Flagship Feature)
+## 🚀 Multi-Lever Profit Optimization Simulator Results
 
 Our interactive simulation engine evaluated three simultaneous policy interventions:
 * **Lever 1 (AI COD RTO Shield):** Pre-dispatch OTP verification and ₹25 instant UPI discount incentives prevent 40% of COD returns (2,781 orders converted to delivered sales), recovering **₹28.23 Lakhs**.
@@ -74,14 +94,14 @@ cd smart-profit-optimizer
 pip install -r requirements.txt
 ```
 
-### 3. Open in PyCharm / Jupyter Notebook
-Launch `analysis.ipynb` and execute the 11 modular cells to reproduce all exploratory charts, RFM segmentations, seller audits, and the profit simulator.
-
-### 4. Launch the Interactive Streamlit Web Dashboard
+### 3. Launch the Interactive Streamlit Web Dashboard
 ```bash
 streamlit run app.py
 ```
-Open `http://localhost:8501` in your browser to interact with the real-time simulation sliders, filter metrics, and download strategy scenario reports.
+Open your browser at `http://localhost:8501` to explore the live dashboard, adjust simulator sliders, and inspect diagnostic analytics tabs.
+
+### 4. Or Run the Jupyter Notebook in PyCharm
+Launch `analysis.ipynb` and execute the 11 modular cells to review the data auditing and feature engineering logic.
 
 ---
 
