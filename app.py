@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import joblib
 
 
 # Configure dashboard page title, icon, and wide responsive layout
@@ -113,7 +114,13 @@ st.markdown("---")
 
 # Detailed Analytics Tabs
 st.subheader("📈 Deep-Dive Operational Analytics & Diagnostic Charts")
-tab1, tab2, tab3, tab4 = st.tabs(["💳 Payment Risk & COD Trap", "🏷️ Category Margin Matrix", "🗺️ Regional Logistics Hubs", "🚚 Courier SLA & Review Cliff"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "💳 Payment Risk & COD Trap",
+    "🏷️ Category Margin Matrix",
+    "🗺️ Regional Logistics Hubs",
+    "🚚 Courier SLA & Review Cliff",
+    "🤖 AI Checkout RTO Predictor"
+])
 
 with tab1:
     st.markdown("#### Payment Mode Distribution vs RTO Return Failure Risk")
@@ -213,6 +220,95 @@ with tab4:
         fig_cliff.update_traces(line_color="#2563EB", line_width=3)
         fig_cliff.update_layout(height=380)
         st.plotly_chart(fig_cliff, use_container_width=True)
+
+with tab5:
+    st.markdown("#### 🤖 Real-Time AI Pre-Dispatch RTO Risk Classifier")
+    st.write("Simulate any incoming order at checkout to predict its RTO return probability using our trained Random Forest model (**87.28% Accuracy, 0.7431 ROC-AUC**).")
+
+    # High-performance cached ML pipeline loader
+    @st.cache_resource
+    def load_trained_model():
+        model = joblib.load('models/rto_rf_model.joblib')
+        features = joblib.load('models/model_features.joblib')
+        return model, features
+
+    ml_model, ml_features = load_trained_model()
+
+    col_pred_in, col_pred_out = st.columns([1.1, 1])
+
+    with col_pred_in:
+        st.markdown("##### 📝 Order Simulation Parameters")
+        in_cat = st.selectbox(
+            "Product Category",
+            options=sorted(df['category'].unique()),
+            index=sorted(df['category'].unique()).index('Fashion & Ethnic Wear')
+        )
+        in_pay = st.selectbox(
+            "Payment Method",
+            options=sorted(df['payment_method'].unique()),
+            index=sorted(df['payment_method'].unique()).index('Cash on Delivery (COD)')
+        )
+        in_state = st.selectbox(
+            "Destination State",
+            options=sorted(df['state'].unique()),
+            index=sorted(df['state'].unique()).index('Uttar Pradesh')
+        )
+
+        c_val1, c_val2 = st.columns(2)
+        with c_val1:
+            in_price = st.number_input("Item Price (₹)", min_value=100, max_value=100000, value=1499, step=50)
+        with c_val2:
+            in_shipping = st.number_input("Shipping Fee (₹)", min_value=0, max_value=500, value=49, step=10)
+
+        in_chronic = st.checkbox("Seller has Chronic Late Dispatch History (>25% Delays)", value=True)
+
+    with col_pred_out:
+        st.markdown("##### 🎯 Real-Time Risk Diagnostic")
+
+        # Encode live user inputs to align with model one-hot feature schema
+        input_data = {col: 0 for col in ml_features}
+        input_data['price_inr'] = in_price
+        input_data['shipping_fee_inr'] = in_shipping
+        input_data['order_value_inr'] = in_price + in_shipping
+        input_data['is_chronic_late_seller'] = 1 if in_chronic else 0
+
+        cat_dummy = f"category_{in_cat}"
+        if cat_dummy in input_data:
+            input_data[cat_dummy] = 1
+
+        pay_dummy = f"payment_method_{in_pay}"
+        if pay_dummy in input_data:
+            input_data[pay_dummy] = 1
+
+        state_dummy = f"state_{in_state}"
+        if state_dummy in input_data:
+            input_data[state_dummy] = 1
+
+        input_df = pd.DataFrame([input_data])[ml_features]
+        rto_prob = ml_model.predict_proba(input_df)[0][1]
+        rto_pct = round(rto_prob * 100, 2)
+
+        # Operational Risk Classification & Playbook Recommendations
+        if rto_pct >= 20.0:
+            st.error(f"⚠️ **HIGH RTO RISK DETECTED: {rto_pct}% Return Probability**")
+            st.metric(label="Predicted RTO Risk Score", value=f"{rto_pct}%", delta="High Risk", delta_color="inverse")
+            st.progress(min(int(rto_pct), 100))
+            st.markdown("""
+            **Automated Pre-Dispatch Intervention Playbook:**
+            - 📲 **Trigger WhatsApp/IVR Automated Call** for order confirmation before label generation.
+            - 💸 **Offer Instant ₹50 UPI Cashback Discount** to convert COD order into Prepaid.
+            - 🚚 **Assign Premium SLA Courier Partner** (BlueDart/Delhivery Express) to avoid transit fatigue.
+            """)
+        else:
+            st.success(f"✅ **LOW RTO RISK DETECTED: {rto_pct}% Return Probability**")
+            st.metric(label="Predicted RTO Risk Score", value=f"{rto_pct}%", delta="Normal / Safe", delta_color="normal")
+            st.progress(min(int(rto_pct), 100))
+            st.markdown("""
+            **Automated Pre-Dispatch Intervention Playbook:**
+            - 🚀 **Fast-Track Auto Fulfillment**: Dispatch order directly to warehouse conveyor.
+            - 📦 **Standard Logistics Routing**: Optimal margin retention with standard Surface courier.
+            - 🛡️ **Zero Friction Checkout**: No additional customer verification required.
+            """)
 
 # Executive Scenario Export & One-Click Download
 st.markdown("---")

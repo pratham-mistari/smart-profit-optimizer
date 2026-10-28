@@ -2,11 +2,12 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App_Live-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Random_Forest-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
 [![Plotly](https://img.shields.io/badge/Plotly-Interactive_Charts-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/)
 [![Pandas](https://img.shields.io/badge/Pandas-2.2+-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-An enterprise-grade Data Analytics & Operations Intelligence web platform investigating **margin leakage, Cash on Delivery (COD) Return to Origin (RTO) risks, courier delivery SLAs, seller dispatch bottlenecks, and real-time multi-lever profit optimization** across **100,000+ Indian e-commerce orders** worth **₹61.96 Crores GMV** (modeled after Flipkart, Meesho, and Amazon India).
+An enterprise-grade Data Analytics & Machine Learning web platform investigating **margin leakage, Cash on Delivery (COD) Return to Origin (RTO) risks, courier delivery SLAs, seller dispatch bottlenecks, AI risk scoring, and real-time multi-lever profit optimization** across **100,000+ Indian e-commerce orders** worth **₹61.96 Crores GMV** (modeled after Flipkart, Meesho, and Amazon India).
 
 ---
 
@@ -27,31 +28,31 @@ smart-profit-optimizer/
 │   │   └── indian_ecommerce_100k.csv         # Raw 100,000 real-world Indian orders (₹61.96 Cr GMV)
 │   └── processed/
 │       └── indian_ecommerce_processed.csv    # Enriched production dataset (24.17 MB, 23 features)
+├── models/
+│   ├── rto_rf_model.joblib                   # Production Random Forest Classifier (100 Trees, 7.28 MB)
+│   └── model_features.joblib                 # Serialized feature alignment schema (23 features)
 ├── .streamlit/
 │   └── config.toml                           # Streamlit server & theme styling configuration
-├── app.py                                    # Full Production Streamlit Web Dashboard (250+ LOC)
-├── analysis.ipynb                            # Complete 11-step Jupyter Notebook written in PyCharm
+├── app.py                                    # Full Production Streamlit Web Dashboard (310+ LOC)
+├── analysis.ipynb                            # Complete 17-step Jupyter Notebook written in PyCharm
 ├── .gitignore                                # Hygiene filter (excluding .venv, .idea, cache)
-├── requirements.txt                          # Python dependencies (Streamlit, Plotly, Pandas, etc.)
+├── requirements.txt                          # Python dependencies (Streamlit, Scikit-Learn, Plotly, etc.)
 └── README.md                                 # Technical project documentation
 ```
 
 ---
 
 ## 🖥️ Interactive Web Dashboard Features (`app.py`)
-1. **High-Speed Architecture:** Streamlit cache (`@st.cache_data`) for instantaneous loading of 100,000 transactions (24.17 MB).
+1. **High-Speed Architecture:** Streamlit cache (`@st.cache_data` & `@st.cache_resource`) for instantaneous loading of 100,000 transactions and ML model inference.
 2. **Dynamic Sidebar Filters:** Multi-dimensional slicing across Indian States / Regions, Product Categories, and Payment Channels.
 3. **Executive KPI Cards Deck:** Live display of GMV (₹61.96 Cr), Total Orders (100,000), Net Profit (₹11.85 Cr), Net Margin (19.12%), and COD RTO Rate with bright RED High-Risk alert pill.
-4. **Live Multi-Lever Profit Simulator (Flagship Feature):** 
-   * **Lever 1 Slider:** COD OTP & Prepayment Discount Adoption Rate (0% - 80%).
-   * **Lever 2 Slider:** Free Delivery Threshold Cutoff (₹499 - ₹999).
-   * **Lever 3 Slider:** Chronic Late Seller Fulfillment SLA Penalty (₹0 - ₹150).
-   * *Real-Time Dynamic Recalculation* of EBITDA recovery (+₹34.62 Lakhs / +2.92%) and optimized net profit (₹12.19 Cr).
-5. **Interactive Diagnostic Tabs (Plotly):**
+4. **Live Multi-Lever Profit Simulator:** Real-time recalculation of EBITDA recovery (+₹34.62 Lakhs / +2.92%) and net profit (₹12.19 Cr) across 3 interactive sliders.
+5. **Interactive Diagnostic Tabs (Plotly & Scikit-Learn):**
    * **💳 Payment Risk & COD Trap:** Horizontal failure rate bar chart + Volume share donut chart.
    * **🏷️ Category Margin Matrix:** Scatter/Bubble chart of Net Margin % vs RTO Rate with red 15% threshold line.
    * **🗺️ Regional Logistics Hubs:** Top revenue states horizontal bar chart (Maharashtra ₹13.54 Cr, Gujarat ₹12.18 Cr).
    * **🚚 Courier SLA & Review Cliff:** Partner delay rates and the delivery latency review collapse curve.
+   * **🤖 AI Checkout RTO Predictor (Phase 3 Flagship):** Real-time order simulation form scoring RTO risk with dynamic alert badges and automated intervention playbooks.
 6. **Executive Scenario Export:** One-click CSV download button (`BharatCart_Profit_Optimization_Scenario.csv`) for management review.
 
 ---
@@ -81,6 +82,25 @@ Our interactive simulation engine evaluated three simultaneous policy interventi
 
 ---
 
+## 🤖 Phase 3: Machine Learning Pre-Dispatch RTO Predictive Pipeline
+
+To proactively intercept high-risk orders before warehouse dispatch, we engineered a supervised **Random Forest Classifier**:
+* **Dataset Splitting:** 80,000 Training Orders / 20,000 Testing Orders (Stratified 80/20 Split maintaining 12.72% RTO class balance).
+* **Model Architecture:** 100 Decision Trees (`n_estimators=100`), Max Depth 10 (`max_depth=10`).
+* **Evaluation on 20,000 Unseen Test Orders:**
+  * **Overall Accuracy:** **87.28%**
+  * **ROC-AUC Score:** **0.7431** (Strong discriminatory power on imbalanced real-world e-commerce data).
+* **Top Predictive Feature Importance Drivers:**
+  1. `payment_method_UPI`: **19.21%** (Prepaid commitment strongly predicts successful delivery)
+  2. `category_Fashion & Ethnic Wear`: **16.44%** (Sizing trials & impulse purchases inflate return risk)
+  3. `price_inr`: **14.23%** (Higher value COD items have elevated buyer remorse)
+  4. `order_value_inr`: **14.05%** (Basket size correlation with refusal rate)
+  5. `payment_method_Credit Card`: **9.12%**
+  6. `category_Footwear & Shoes`: **8.21%**
+  7. `payment_method_Debit Card`: **6.79%**
+
+---
+
 ## 💻 How to Run Locally
 
 ### 1. Clone the Repository
@@ -101,7 +121,7 @@ streamlit run app.py
 Open your browser at `http://localhost:8501` to explore the live dashboard, adjust simulator sliders, and inspect diagnostic analytics tabs.
 
 ### 4. Or Run the Jupyter Notebook in PyCharm
-Launch `analysis.ipynb` and execute the 11 modular cells to review the data auditing and feature engineering logic.
+Launch `analysis.ipynb` and execute the 17 modular cells to review the data auditing, feature engineering, and Random Forest machine learning pipeline.
 
 ---
 
